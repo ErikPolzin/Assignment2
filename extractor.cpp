@@ -118,7 +118,8 @@ int main(int argc, char *argv[]) {
     std::vector<PLZERI001::OutputSpec> outputs;
     std::ifstream inputFile(argv[1], std::ios::binary);
     std::string dir = "";
-    int framew, frameh, fileh, filew;
+    int framew = 0; int frameh = 0;
+    int fileh, filew;
 
     if (!inputFile)
     {
@@ -147,11 +148,6 @@ int main(int argc, char *argv[]) {
         {
             framew = std::abs(std::stoi(argv[++i]));
             frameh = std::abs(std::stoi(argv[++i]));
-            if (framew == 0 || frameh == 0)
-            {
-                std::cout << "Invalid frame width/height for frame\n";
-                return 1;
-            }
         }
         else if (strcmp("-w", argv[i]) == 0)
         {
@@ -175,6 +171,11 @@ int main(int argc, char *argv[]) {
         // cluttered with .pgm files while testing.
         else if (strcmp("-o", argv[i]) == 0) dir = argv[++i];
 	}
+    if (framew <= 0 || frameh <= 0)
+    {
+        std::cout << "Invalid frame width/height for frame\n";
+        return 1;
+    }
     std::string fp;
     // Can potentially access pixel data as imageSequence[i][row][col] (to conform
     // to assignment spec) but isn't actually necessary here.
@@ -192,7 +193,8 @@ int main(int argc, char *argv[]) {
     int fileidx = 0; int nframes = 0;
     auto t1 = std::chrono::high_resolution_clock::now();
     // Iterate through legs, i.e. (x1,y1,x2,y2), (x2,y2,x3,y3), (x3,y3,x4,y4), ...
-    for (int i=0; i<points_array.size()/2-1; i++)
+    int npoints = points_array.size()/2-1;
+    for (int i=0; i<npoints; ++i)
     {
         x1 = points_array[i*2]; y1 = points_array[i*2+1];
         x2 = points_array[i*2+2]; y2 = points_array[i*2+3];
