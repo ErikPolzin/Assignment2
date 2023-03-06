@@ -20,12 +20,31 @@ Frame::Frame(int w, int h, PGMMetadata * imd):
     for (int i = 0; i < height; ++i) data[i] = new char[width];
 };
 
+// Copying frames isn't necessary when simply updating a single frame.
+// Included to conform to assignment spec.
+Frame::Frame(const Frame &frame)
+{
+    height = frame.height;
+    width = frame.width;
+    x=frame.x; y=frame.y;
+    inputMdata = frame.inputMdata;
+    // Deep copy frame data
+    data = new char*[height];
+    for (int i = 0; i < height; ++i){
+        data[i] = new char[width];
+        std::copy(frame.data[i], frame.data[i]+frame.width, data[i]);
+    }
+}
+
 Frame::~Frame()
 {
     // Clean up memory allocated to this frame
     for (int i = 0; i < this->height; ++i) delete data[i];
     delete [] data;
 };
+
+/// Unused, purely to conform to assignment spec using FrameSequence[i][row][col]
+char * Frame::operator[](int idx) {return data[idx];};
 
 void Frame::setOrigin(int _x, int _y) {x = _x; y = _y;};
 
@@ -157,6 +176,11 @@ int main(int argc, char *argv[]) {
         else if (strcmp("-o", argv[i]) == 0) dir = argv[++i];
 	}
     std::string fp;
+    // Can potentially access pixel data as imageSequence[i][row][col] (to conform
+    // to assignment spec) but isn't actually necessary here.
+    // The frame class handles writing its pixel data to output streams by
+    // overloading the << operator.
+    PLZERI001::FrameSequence imageSequence;
     PLZERI001::OutputSpec output;
     PLZERI001::PGMMetadata input_meta;
     PLZERI001::PGMMetadata output_meta(framew, frameh);
@@ -178,10 +202,18 @@ int main(int argc, char *argv[]) {
         do {
             dist = std::sqrt(std::pow(x-x1, 2)+std::pow(y-y1, 2));
             prog = dist / tot_dist;
-            spd = prog*(1-prog)+1;    // Make sure speed is non-zero
+            spd = prog*(1-prog)+1;  // Make sure speed is non-zero
             frame.setOrigin(x, y);
             try {
-                inputFile >> frame;    // Populate frame's pixel data from input file
+                inputFile >> frame;  // Populate frame's pixel data from input file
+                // Unnecessary line of code that hogs a lot of memory.
+                // Keeping track of each frame in a vector uses 16 TIMES the memory when running the
+                // smallest example (and will use much more with examples with larger/more frames).
+                // It's not necessary to store frames when a single global frame can be updated and then
+                // written to disk on-the-fly at every iteration of the loop.
+                // Functionality is the same when commenting out this line (but it's included to
+                // conform to assignment spec)
+                imageSequence.push_back(PLZERI001::Frame(frame));
             } catch (std::bad_alloc& e) {
                 // Maybe not very efficient to catch exceptions, but easier and
                 // cleaner than checking each new array sub-item for std::nothrow nullptrs.

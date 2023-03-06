@@ -63,6 +63,10 @@ class Frame {
         /// @param imd Input file metadata
         Frame(int w, int h, PGMMetadata * imd);
 
+        /// @brief Deep copy a frame's data
+        /// @param frame Source frame
+        Frame(const Frame &frame);
+
         /// @brief Destroy frame, freeing pixel data
         ~Frame();
 
@@ -74,6 +78,9 @@ class Frame {
         /// @brief Force this frame to invert/uninvert its colours
         /// @param inv Invert colours
         void setInverted(bool inv);
+
+        /// @brief Return char data at a given index
+        char * operator[](int idx);
 
         /// @brief Write data from a frame to an output stream (like a file)
         /// @param stream Output stream
@@ -87,5 +94,8 @@ class Frame {
         /// @return The same input stream
         friend std::ifstream& operator>>(std::ifstream& stream, Frame& frame);
 };
+
+// Not really necessary. Included to conform to assignment spec
+typedef std::vector<Frame> FrameSequence;
 }
 #endif
