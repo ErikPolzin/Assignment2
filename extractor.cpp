@@ -15,12 +15,14 @@ namespace PLZERI001 {
 Frame::Frame(int w, int h, PGMMetadata * imd):
     inputMdata(imd), width(w), height(h), x(-1), y(-1), inverted(false)
 {
+    // Dynamically allocate memory from the heap
     data = new char*[height];
     for (int i = 0; i < height; ++i) data[i] = new char[width];
 };
 
 Frame::~Frame()
 {
+    // Clean up memory allocated to this frame
     for (int i = 0; i < this->height; ++i) delete data[i];
     delete [] data;
 };
@@ -48,6 +50,7 @@ std::ifstream &operator>>(std::ifstream& stream, Frame& f)
     int pos = f.inputMdata->data_offset+f.y*f.inputMdata->file_width+f.x;
     for (int i = 0; i < f.height; ++i)
     {
+        // Wrap position so that out-of-bounds coordinates don't crash
         pos = pos % maxpos;
         stream.seekg(pos);
         stream.read(f.data[i], f.width);
@@ -78,6 +81,8 @@ std::ifstream &operator>>(std::ifstream& stream, PGMMetadata& md)
 
 std::string OutputSpec::file_name (int frame_index)
 {
+    // Just negate the file name when the output is reversed. The frametester script
+    // should sort these written files appropriately.
     if (operation & REVOP) frame_index = -frame_index;
     std::stringstream fn;
     fn << name << "-" << std::setfill('0') << std::setw(5) << frame_index << ".pgm";
@@ -147,18 +152,22 @@ int main(int argc, char *argv[]) {
             spec.operation = op;
             outputs.push_back(spec);
         }
+        // Useful output directory so that the source directory doesn't get
+        // cluttered with .pgm files while testing.
         else if (strcmp("-o", argv[i]) == 0) dir = argv[++i];
 	}
     std::string fp;
     PLZERI001::OutputSpec output;
     PLZERI001::PGMMetadata input_meta;
     PLZERI001::PGMMetadata output_meta(framew, frameh);
-    inputFile >> input_meta;
+    inputFile >> input_meta;  // Parse input metadata from file
+    // Create a single frame (with fixed width/height/input metadata).
     PLZERI001::Frame frame = PLZERI001::Frame(framew, frameh, &input_meta);
     int x1, x2, y1, y2;
     double x, y, dx, dy, spd, tot_dist, dist, prog;
     int fileidx = 0; int nframes = 0;
     auto t1 = std::chrono::high_resolution_clock::now();
+    // Iterate through legs, i.e. (x1,y1,x2,y2), (x2,y2,x3,y3), (x3,y3,x4,y4), ...
     for (int i=0; i<points_array.size()/2-1; i++)
     {
         x1 = points_array[i*2]; y1 = points_array[i*2+1];
@@ -169,14 +178,17 @@ int main(int argc, char *argv[]) {
         do {
             dist = std::sqrt(std::pow(x-x1, 2)+std::pow(y-y1, 2));
             prog = dist / tot_dist;
-            spd = prog*(1-prog)+1;
+            spd = prog*(1-prog)+1;    // Make sure speed is non-zero
             frame.setOrigin(x, y);
             try {
-                inputFile >> frame;
+                inputFile >> frame;    // Populate frame's pixel data from input file
             } catch (std::bad_alloc& e) {
+                // Maybe not very efficient to catch exceptions, but easier and
+                // cleaner than checking each new array sub-item for std::nothrow nullptrs.
                 std::cout << "Unable to alloc. memory for frame " << i << std::endl;
                 continue;
             }
+            // Write frame to each of the specified output profiles.
             for (int k = 0; k < outputs.size(); k++)
             {
                 output = outputs[k];
@@ -190,17 +202,20 @@ int main(int argc, char *argv[]) {
                 }
                 outfile << output_meta;
                 frame.setInverted(output.operation & INVOP);
-                outfile << frame;
+                outfile << frame;  // Write frame to output file.
                 outfile.close();
                 nframes++;
             }
             std::cout << "Wrote file " << nframes << "\r";
             x+=dx*spd; y+=dy*spd;
         } while (dist<tot_dist && nframes <= MAX_FRAMES);
+        // Constrain total number of frames so that the filesystem isn't completely
+        // fried if the acceleration algorithm goes into an infinite loop.
     }
     auto t2 = std::chrono::high_resolution_clock::now();
     auto ms_int = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
     std::cout << "Wrote " << nframes << " frames in " << ms_int.count() << "ms\n";
+    // Print out some memory stats
     std::cout << "Malloc stats:\n";
     malloc_stats();
     return 0;
