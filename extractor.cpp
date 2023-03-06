@@ -101,6 +101,54 @@ int main(int argc, char *argv[]) {
         std::cout << "Cannot open file at " << argv[1] << std::endl;
         return 1;
     }
+    for (int i = 1; i < argc; i++)
+	{
+		if (strcmp("-t", argv[i]) == 0)
+        {
+            points_array.push_back(std::abs(std::stoi(argv[++i])));
+            points_array.push_back(std::abs(std::stoi(argv[++i])));
+            points_array.push_back(std::abs(std::stoi(argv[++i])));
+            points_array.push_back(std::abs(std::stoi(argv[++i])));
+        }
+        if (strcmp("-p", argv[i]) == 0)
+        {
+            int N = std::stoi(argv[++i]);
+            for (int n=0; n<N; ++n)
+            {
+                points_array.push_back(std::abs(std::stoi(argv[++i])));
+                points_array.push_back(std::abs(std::stoi(argv[++i])));
+            }
+        }
+		else if (strcmp("-s", argv[i]) == 0)
+        {
+            framew = std::abs(std::stoi(argv[++i]));
+            frameh = std::abs(std::stoi(argv[++i]));
+            if (framew == 0 || frameh == 0)
+            {
+                std::cout << "Invalid frame width/height for frame\n";
+                return 1;
+            }
+        }
+        else if (strcmp("-w", argv[i]) == 0)
+        {
+            std::string operation = argv[++i];
+            unsigned short int op;
+            if (operation == "none") op = NOOP;
+            else if (operation == "invert") op = INVOP;
+            else if (operation == "reverse") op = REVOP;
+            else if (operation == "revinvert") op = (INVOP | REVOP);
+            else
+            {
+                std::cout << "Unknown frame operation " << operation;
+                continue;
+            }
+            PLZERI001::OutputSpec spec;
+            spec.name = argv[++i];
+            spec.operation = op;
+            outputs.push_back(spec);
+        }
+        else if (strcmp("-o", argv[i]) == 0) dir = argv[++i];
+	}
     std::string fp;
     PLZERI001::OutputSpec output;
     PLZERI001::PGMMetadata input_meta;
