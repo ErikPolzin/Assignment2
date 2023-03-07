@@ -74,7 +74,6 @@ std::ifstream &operator>>(std::ifstream& stream, Frame& f)
         stream.seekg(pos);
         stream.read(f.data[i], f.width);
         pos += f.inputMdata->file_width;
-        if (pos > maxpos) pos = pos - maxpos;
     }
     return stream;
 }
@@ -100,9 +99,7 @@ std::ifstream &operator>>(std::ifstream& stream, PGMMetadata& md)
 
 std::string OutputSpec::file_name (int frame_index)
 {
-    // Just negate the file name when the output is reversed. The frametester script
-    // should sort these written files appropriately.
-    if (operation & REVOP) frame_index = -frame_index;
+    if (operation & REVOP) frame_index = MAX_FRAMES - frame_index;
     std::stringstream fn;
     fn << name << "-" << std::setfill('0') << std::setw(5) << frame_index << ".pgm";
     return fn.str();
