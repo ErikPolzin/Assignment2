@@ -7,6 +7,8 @@
 #include <vector>
 
 #define MAX_FRAMES 2000
+#define MAX_PAN_SPEED 5
+// Output spec modifiers, as a bit field
 #define NOOP 0
 #define INVOP 1
 #define REVOP 2

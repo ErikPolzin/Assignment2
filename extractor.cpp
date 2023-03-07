@@ -204,7 +204,7 @@ int main(int argc, char *argv[]) {
         do {
             dist = std::sqrt(std::pow(x-x1, 2)+std::pow(y-y1, 2));
             prog = dist / tot_dist;
-            spd = prog*(1-prog)+1;  // Make sure speed is non-zero
+            spd = MAX_PAN_SPEED*(prog*(1-prog))+1;  // Make sure speed is non-zero
             frame.setOrigin(x, y);
             try {
                 inputFile >> frame;  // Populate frame's pixel data from input file
