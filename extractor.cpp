@@ -39,7 +39,7 @@ Frame::Frame(const Frame &frame)
 Frame::~Frame()
 {
     // Clean up memory allocated to this frame
-    for (int i = 0; i < this->height; ++i) delete data[i];
+    for (int i = 0; i < this->height; ++i) delete [] data[i];
     delete [] data;
 };
 
