@@ -56,7 +56,7 @@ class Frame {
     private:
         int width, height, x, y, inverted;
         PGMMetadata *inputMdata;
-        char ** data;
+        unsigned char ** data;
 
     public:
         /// @brief Initialize a frame with a set width, height and file metadata
@@ -82,7 +82,7 @@ class Frame {
         void setInverted(bool inv);
 
         /// @brief Return char data at a given index
-        char * operator[](int idx);
+        unsigned char * operator[](int idx);
 
         /// @brief Write data from a frame to an output stream (like a file)
         /// @param stream Output stream

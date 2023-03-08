@@ -16,8 +16,8 @@ Frame::Frame(int w, int h, PGMMetadata * imd):
     inputMdata(imd), width(w), height(h), x(-1), y(-1), inverted(false)
 {
     // Dynamically allocate memory from the heap
-    data = new char*[height];
-    for (int i = 0; i < height; ++i) data[i] = new char[width];
+    data = new unsigned char*[height];
+    for (int i = 0; i < height; ++i) data[i] = new unsigned char[width];
 };
 
 // Copying frames isn't necessary when simply updating a single frame.
@@ -29,9 +29,9 @@ Frame::Frame(const Frame &frame)
     x=frame.x; y=frame.y;
     inputMdata = frame.inputMdata;
     // Deep copy frame data
-    data = new char*[height];
+    data = new unsigned char*[height];
     for (int i = 0; i < height; ++i){
-        data[i] = new char[width];
+        data[i] = new unsigned char[width];
         std::copy(frame.data[i], frame.data[i]+frame.width, data[i]);
     }
 }
@@ -44,7 +44,7 @@ Frame::~Frame()
 };
 
 /// Unused, purely to conform to assignment spec using FrameSequence[i][row][col]
-char * Frame::operator[](int idx) {return data[idx];};
+unsigned char * Frame::operator[](int idx) {return data[idx];};
 
 void Frame::setOrigin(int _x, int _y) {x = _x; y = _y;};
 
@@ -72,7 +72,7 @@ std::ifstream &operator>>(std::ifstream& stream, Frame& f)
         // Wrap position so that out-of-bounds coordinates don't crash
         pos = pos % maxpos;
         stream.seekg(pos);
-        stream.read(f.data[i], f.width);
+        stream.read((char*) f.data[i], f.width);
         pos += f.inputMdata->file_width;
     }
     return stream;
