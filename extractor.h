@@ -97,7 +97,33 @@ class Frame {
         friend std::ifstream& operator>>(std::ifstream& stream, Frame& frame);
 };
 
-// Not really necessary. Included to conform to assignment spec
-typedef std::vector<Frame> FrameSequence;
+/// @brief Wraps a sequence of frame objects, stored in a vector
+class FrameSequence {
+
+    private:
+        // Can potentially access pixel data as imageSequence[i][row][col] (to conform
+        // to assignment spec) but isn't actually necessary here.
+        // The frame class handles writing its pixel data to output streams by
+        // overloading the << operator.
+        std::vector<Frame> imageSequence;
+
+    public:
+        /// @brief Default constructor
+        FrameSequence() = default;
+
+        /// @brief default destructor
+        ~FrameSequence() = default;
+
+        /// @brief Generate frames from an input file, with given parameters
+        /// @param inputFileName Input file name
+        /// @param frameh Frame height
+        /// @param framew Frame width
+        /// @param points_array Array of polygon points
+        /// @param outputs Array of output specifications
+        /// @param dir Output directory. May be empty
+        int generate_frames(
+            std::string inputFileName, int frameh, int framew, std::vector<int> points_array,
+            std::vector<OutputSpec> outputs, std::string dir);
+};
 }
 #endif

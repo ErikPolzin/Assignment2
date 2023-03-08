@@ -4,9 +4,10 @@ Extracts smaller subsections ('frames') from a larger PGM image, and outputs the
 The frames are loaded in small increments, effectively panning through the large PGM image along a polyline.
 They can be stitched together with FFMPEG to generate a video.
 
-## Build instructions
+## Build & launch instructions
 
-Run `make extractor` (or just `make`) inside the extracted folder. An executable should be built, to be run as `./extractor`.
+Run `make` inside the extracted folder. An executable should be built, to be run as `./driver`. Note that when running the frametester
+script subsequently, the executable name needs to be changed from 'extractor' to 'driver'.
 
 Run `make clean` to remove the generated object files.
 
@@ -27,6 +28,7 @@ The CLI has the format `extractor <input_file>.pgm <FLAGS>` where FLAGS are:
 ## Files
 
 - `extractor.h`: Definitions, including Frame, FrameSequence, PGMMetadata and OutputSpec classes.
-- `extractor.cpp`: Implements definitions and command line parser.
+- `extractor.cpp`: Implements extractor definitions.
+- `driver.cpp`: Implements main function with command line parser.
 - `Makefile`: Build instructions for `make`
 - `README.md`: Build instructions for you :)
