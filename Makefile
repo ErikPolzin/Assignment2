@@ -4,10 +4,10 @@ CXXFLAGS := -std=c++20
 SRC := $(shell find . -name "*.cpp")
 OBJ  := $(patsubst %.cpp, %.o, $(SRC))
 
-all: driver
+all: extractor
 
-driver: $(OBJ)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o driver $(OBJ) $(LDLIBS)
+extractor: $(OBJ)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o extractor $(OBJ) $(LDLIBS)
 
 depend: .depend
 

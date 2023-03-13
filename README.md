@@ -6,9 +6,7 @@ They can be stitched together with FFMPEG to generate a video.
 
 ## Build & launch instructions
 
-Run `make` inside the extracted folder. An executable should be built, to be run as `./driver`. Note that when running the frametester
-script subsequently, the executable name needs to be changed from 'extractor' to 'driver'.
-
+Run `make` inside the extracted folder. An executable should be built, to be run as `./extractor`.
 Run `make clean` to remove the generated object files.
 
 Run `ffmpeg -y -framerate 10 -i "<output_dir>/<output_name>-%05d.pgm" -pix_fmt rgb24 -vcodec png <video_name>.mp4` to generate the video.
